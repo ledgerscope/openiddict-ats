@@ -1,0 +1,18 @@
+<Project>
+
+  <!--<Import Project="Sdk.props" Sdk="Microsoft.DotNet.Arcade.Sdk" />-->
+
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>preview</AnalysisLevel>
+    <NoWarn>$(NoWarn);CS1591;NU5118;NU5128</NoWarn>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>embedded</DebugType>
+    <CodeAnalysisRuleset>$(MSBuildThisFileDirectory)eng\CodeAnalysis.ruleset</CodeAnalysisRuleset>
+    <EnableXlfLocalization>false</EnableXlfLocalization>
+  </PropertyGroup>
+</Project>

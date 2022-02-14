@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32126.317
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIddict.Ats", "OpenIddict.Ats\OpenIddict.Ats.csproj", "{A32E5EF7-619D-4D84-B4B6-E5CEC459CAA9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenIddict.Ats.Models", "OpenIddict.Ats.Models\OpenIddict.Ats.Models.csproj", "{E17D864A-5441-47E0-99C8-0B3ED7240F80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A32E5EF7-619D-4D84-B4B6-E5CEC459CAA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A32E5EF7-619D-4D84-B4B6-E5CEC459CAA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A32E5EF7-619D-4D84-B4B6-E5CEC459CAA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A32E5EF7-619D-4D84-B4B6-E5CEC459CAA9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E17D864A-5441-47E0-99C8-0B3ED7240F80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E17D864A-5441-47E0-99C8-0B3ED7240F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E17D864A-5441-47E0-99C8-0B3ED7240F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E17D864A-5441-47E0-99C8-0B3ED7240F80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {57C2DFEE-EEFC-46F0-9558-D93165CE720E}
+	EndGlobalSection
+EndGlobal
