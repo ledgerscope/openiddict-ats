@@ -4,7 +4,6 @@
  * the license and the contributors participating to this project.
  */
 
-using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -12,7 +11,6 @@ using OpenIddict.Core;
 using OpenIddict.Ats.Models;
 using Xunit;
 using SR = OpenIddict.Abstractions.OpenIddictResources;
-using Microsoft.Azure.Cosmos.Table;
 
 namespace OpenIddict.Ats.Tests
 {
