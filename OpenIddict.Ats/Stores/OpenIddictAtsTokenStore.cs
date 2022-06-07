@@ -114,7 +114,6 @@ namespace OpenIddict.Ats
 
             insertOperation.Entity.PartitionKey = Guid.NewGuid().ToString();
             insertOperation.Entity.RowKey = Guid.NewGuid().ToString();
-            insertOperation.Entity.Timestamp = DateTime.UtcNow;
 
             await ct.ExecuteAsync(insertOperation, cancellationToken);
         }
