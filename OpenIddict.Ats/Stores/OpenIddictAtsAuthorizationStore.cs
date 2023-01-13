@@ -493,7 +493,7 @@ namespace OpenIddict.Ats
         }
 
         /// <inheritdoc/>
-        public virtual async ValueTask<TResult> GetAsync<TState, TResult>(
+        public virtual async ValueTask<TResult?> GetAsync<TState, TResult>(
             Func<IQueryable<TAuthorization>, TState, IQueryable<TResult>> query,
             TState state, CancellationToken cancellationToken)
         {
@@ -511,7 +511,7 @@ namespace OpenIddict.Ats
 
             //TODO KAR make async
             //.AsTableQuery().FirstOrDefaultAsync so how can I get it working here?
-            return result.First();//.FirstOrDefaultAsync(cancellationToken);
+            return result.FirstOrDefault();
         }
 
         /// <inheritdoc/>
