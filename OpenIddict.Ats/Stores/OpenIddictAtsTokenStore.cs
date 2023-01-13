@@ -474,17 +474,7 @@ namespace OpenIddict.Ats
                 throw new ArgumentNullException(nameof(query));
             }
 
-            var tableClient = await Context.GetTableClientAsync(cancellationToken);
-            CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.AuthorizationsCollectionName);
-
-            var cloudQuery = new TableQuery<TToken>();
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(cloudQuery, default, cancellationToken);
-
-            var result = query(queryResult.Results.AsQueryable(), state);
-
-            //TODO KAR make async
-            //.AsTableQuery().FirstOrDefaultAsync so how can I get it working here?
-            return result.First();//.FirstOrDefaultAsync(cancellationToken);
+            return await ListAsync(query, state, cancellationToken).FirstAsync();
         }
 
         /// <inheritdoc/>
