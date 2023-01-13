@@ -81,7 +81,7 @@ namespace OpenIddict.Ats
             var tableClient = await Context.GetTableClientAsync(cancellationToken);
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.ApplicationsCollectionName);
                         
-            var tableQuery = new TableQuery<TToken>();
+            var tableQuery = new TableQuery<TToken>().Select(new string[] { TableConstants.PartitionKey, TableConstants.RowKey });
 
             long counter = 0;
             var continuationToken = default(TableContinuationToken);
