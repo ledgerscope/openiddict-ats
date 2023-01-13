@@ -112,7 +112,7 @@ namespace OpenIddict.Ats
 
             TableOperation insertOperation = TableOperation.Insert(scope);
 
-            insertOperation.Entity.PartitionKey = Guid.NewGuid().ToString();
+            insertOperation.Entity.PartitionKey = Guid.NewGuid().ToString();  //TODO: Deterministic
             insertOperation.Entity.RowKey = scope.Name;
 
             await ct.ExecuteAsync(insertOperation, cancellationToken);
