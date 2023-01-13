@@ -113,7 +113,7 @@ namespace OpenIddict.Ats
 
             TableOperation insertOperation = TableOperation.Insert(application);
 
-            insertOperation.Entity.PartitionKey = Guid.NewGuid().ToString();
+            insertOperation.Entity.PartitionKey = application.ClientId;
             insertOperation.Entity.RowKey = application.ClientId;
 
             await ct.ExecuteAsync(insertOperation, cancellationToken);
@@ -177,10 +177,9 @@ namespace OpenIddict.Ats
             var tableClient = await Context.GetTableClientAsync(cancellationToken);
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.ApplicationsCollectionName);
 
-            //TODO KAR .Take(1)
             var condition = TableQuery.GenerateFilterCondition(nameof(OpenIddictAtsApplication.PartitionKey), QueryComparisons.Equal, identifier);
 
-            var query = new TableQuery<TApplication>().Where(condition);
+            var query = new TableQuery<TApplication>().Where(condition).Take(1);
 
             var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
 

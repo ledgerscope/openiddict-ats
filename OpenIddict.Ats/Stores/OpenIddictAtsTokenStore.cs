@@ -384,10 +384,9 @@ namespace OpenIddict.Ats
             var tableClient = await Context.GetTableClientAsync(cancellationToken);
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.TokensCollectionName);
                         
-            //TODO KAR .Take(1)
             var condition = TableQuery.GenerateFilterCondition(nameof(OpenIddictAtsToken.PartitionKey), QueryComparisons.Equal, identifier);
 
-            var query = new TableQuery<TToken>().Where(condition);
+            var query = new TableQuery<TToken>().Where(condition).Take(1);
 
             var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
 
@@ -405,10 +404,9 @@ namespace OpenIddict.Ats
             var tableClient = await Context.GetTableClientAsync(cancellationToken);
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.TokensCollectionName);
                         
-            //TODO KAR .Take(1)
             var condition = TableQuery.GenerateFilterCondition(nameof(OpenIddictAtsToken.ReferenceId), QueryComparisons.Equal, identifier);
 
-            var query = new TableQuery<TToken>().Where(condition);
+            var query = new TableQuery<TToken>().Where(condition).Take(1);
 
             var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
 
