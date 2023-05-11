@@ -23,6 +23,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Ats.Models;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using SR = OpenIddict.Abstractions.OpenIddictResources;
+using System.Data;
 
 namespace OpenIddict.Ats
 {
@@ -755,20 +756,23 @@ namespace OpenIddict.Ats
                  where (token.Status != Statuses.Inactive && token.Status != Statuses.Valid) ||
                               token.ExpirationDate < DateTime.UtcNow ||
                               authorizations.Any(authorization => authorization.Status != Statuses.Valid)
-                 select token).ToList();
+                 select token).ToLookup(a => a.PartitionKey);
 
-            var offset = 0;
-            while (offset < identifiers.Count)
+            foreach (var rowsForPk in identifiers)
             {
-                var batch = new TableBatchOperation();
-                var rows = identifiers.Skip(offset).Take(100).ToList();
-                foreach (var row in rows)
+                var offset = 0;
+                while (offset < rowsForPk.Count())
                 {
-                    batch.Delete(row);
-                }
+                    var batch = new TableBatchOperation();
+                    var rows = rowsForPk.Skip(offset).Take(100).ToList();
+                    foreach (var row in rows)
+                    {
+                        batch.Delete(row);
+                    }
 
-                ctAuth.ExecuteBatch(batch);
-                offset += rows.Count;
+                    await ctToken.ExecuteBatchAsync(batch, cancellationToken);
+                    offset += rows.Count;
+                }
             }
         }
 

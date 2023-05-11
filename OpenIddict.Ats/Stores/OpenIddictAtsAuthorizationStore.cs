@@ -738,25 +738,28 @@ namespace OpenIddict.Ats
 
             var identifiers =
                 (from authorization in authQueryResult
-                        join token in tokenQueryResult
-                            on authorization.PartitionKey equals token.AuthorizationId into tokens
-                       where authorization.CreationDate < threshold.UtcDateTime
-                       where authorization.Status != Statuses.Valid ||
-                            (authorization.Type == AuthorizationTypes.AdHoc && !tokens.Any())
-                       select authorization).ToList();
+                 join token in tokenQueryResult
+                     on authorization.PartitionKey equals token.AuthorizationId into tokens
+                 where authorization.CreationDate < threshold.UtcDateTime
+                 where authorization.Status != Statuses.Valid ||
+                      (authorization.Type == AuthorizationTypes.AdHoc && !tokens.Any())
+                 select authorization).ToLookup(a => a.PartitionKey);
 
-            var offset = 0;
-            while (offset < identifiers.Count)
+            foreach (var rowsForPk in identifiers)
             {
-                var batch = new TableBatchOperation();
-                var rows = identifiers.Skip(offset).Take(100).ToList();
-                foreach (var row in rows)
+                var offset = 0;
+                while (offset < rowsForPk.Count())
                 {
-                    batch.Delete(row);
-                }
+                    var batch = new TableBatchOperation();
+                    var rows = rowsForPk.Skip(offset).Take(100).ToList();
+                    foreach (var row in rows)
+                    {
+                        batch.Delete(row);
+                    }
 
-                ctAuth.ExecuteBatch(batch);
-                offset += rows.Count;
+                    ctAuth.ExecuteBatch(batch);
+                    offset += rows.Count;
+                }
             }
         }
 
