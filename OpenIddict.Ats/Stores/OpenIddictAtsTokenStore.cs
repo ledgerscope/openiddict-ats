@@ -974,7 +974,7 @@ namespace OpenIddict.Ats
 
             try
             {
-                await ct.ExecuteAsync(insertOrMergeOperation);
+                await ct.ExecuteAsync(insertOrMergeOperation, cancellationToken);
             }
             catch (StorageException exception)
             {

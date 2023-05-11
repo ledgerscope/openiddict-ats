@@ -757,7 +757,7 @@ namespace OpenIddict.Ats
                         batch.Delete(row);
                     }
 
-                    ctAuth.ExecuteBatch(batch);
+                    await ctAuth.ExecuteBatchAsync(batch, cancellationToken);
                     offset += rows.Count;
                 }
             }
@@ -944,7 +944,7 @@ namespace OpenIddict.Ats
 
             try
             {
-                await ct.ExecuteAsync(insertOrMergeOperation);
+                await ct.ExecuteAsync(insertOrMergeOperation, cancellationToken);
             }
             catch (StorageException exception)
             {
