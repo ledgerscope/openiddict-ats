@@ -732,19 +732,21 @@ namespace OpenIddict.Ats
             CloudTable ctToken = tableClient.GetTableReference(Options.CurrentValue.TokensCollectionName);
 
             var authQuery = new TableQuery<TAuthorization>();
-            var authQueryResult = ctAuth.ExecuteQueryAllAsync(authQuery, cancellationToken);
+            var authQueryResultTask = ctAuth.ExecuteQueryAllAsync(authQuery, cancellationToken).ToListAsync(cancellationToken);
 
             var tokenQuery = new TableQuery<OpenIddictAtsToken>();
-            var tokenQueryResult = ctToken.ExecuteQueryAllAsync(tokenQuery, cancellationToken);
+            var tokenQueryResult = await ctToken.ExecuteQueryAllAsync(tokenQuery, cancellationToken).ToListAsync(cancellationToken);
 
-            var identifiers = await
+            var authQueryResult = await authQueryResultTask;
+
+            var identifiers = 
                 (from authorization in authQueryResult
                  join token in tokenQueryResult
                      on authorization.PartitionKey equals token.AuthorizationId into tokens
                  where authorization.CreationDate < threshold.UtcDateTime
                  where authorization.Status != Statuses.Valid ||
-                      (authorization.Type == AuthorizationTypes.AdHoc && !tokens.ToEnumerable().Any())
-                 select authorization).ToLookupAsync(a => a.PartitionKey, cancellationToken: cancellationToken);
+                      (authorization.Type == AuthorizationTypes.AdHoc && !tokens.Any())
+                 select authorization).ToLookup(a => a.PartitionKey);
 
             foreach (var rowsForPk in identifiers)
             {
