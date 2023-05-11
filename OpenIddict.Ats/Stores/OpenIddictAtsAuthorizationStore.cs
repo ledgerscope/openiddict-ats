@@ -796,7 +796,7 @@ namespace OpenIddict.Ats
                 return default;
             }
 
-            return (string)TypeDescriptor.GetConverter(typeof(string)).ConvertFromInvariantString(identifier);
+            return (string?)TypeDescriptor.GetConverter(typeof(string)).ConvertFromInvariantString(identifier);
         }
 
         /// <inheritdoc/>
