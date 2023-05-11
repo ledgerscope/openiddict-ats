@@ -24,6 +24,7 @@ using OpenIddict.Ats.Models;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using SR = OpenIddict.Abstractions.OpenIddictResources;
 using System.Data;
+using OpenIddict.Ats.Extensions;
 
 namespace OpenIddict.Ats
 {
@@ -743,20 +744,20 @@ namespace OpenIddict.Ats
             CloudTable ctAuth = tableClient.GetTableReference(Options.CurrentValue.AuthorizationsCollectionName);
 
             var tokenQuery = new TableQuery<TToken>();
-            var tokenQueryResult = await ctToken.ExecuteQuerySegmentedAsync(tokenQuery, default, cancellationToken);
+            var tokenQueryResult = ctToken.ExecuteQueryAllAsync(tokenQuery, cancellationToken);
 
             var authQuery = new TableQuery<OpenIddictAtsAuthorization>();
-            var authQueryResult = await ctAuth.ExecuteQuerySegmentedAsync(authQuery, default, cancellationToken);
+            var authQueryResult = ctAuth.ExecuteQueryAllAsync(authQuery, cancellationToken);
 
             var identifiers =
-                (from token in tokenQueryResult
+                await (from token in tokenQueryResult
                  join authorization in authQueryResult
                             on token.AuthorizationId equals authorization.PartitionKey into authorizations
                  where token.CreationDate < threshold.UtcDateTime
                  where (token.Status != Statuses.Inactive && token.Status != Statuses.Valid) ||
                               token.ExpirationDate < DateTime.UtcNow ||
-                              authorizations.Any(authorization => authorization.Status != Statuses.Valid)
-                 select token).ToLookup(a => a.PartitionKey);
+                              authorizations.ToEnumerable().Any(authorization => authorization.Status != Statuses.Valid)
+                 select token).ToLookupAsync(a => a.PartitionKey, cancellationToken: cancellationToken);
 
             foreach (var rowsForPk in identifiers)
             {
