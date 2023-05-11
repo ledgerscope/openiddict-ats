@@ -388,9 +388,20 @@ namespace OpenIddict.Ats
 
             var query = new TableQuery<TToken>().Where(condition).Take(1);
 
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
+            var continuationToken = default(TableContinuationToken);
 
-            return queryResult.Results.FirstOrDefault();
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
+
+                if (queryResult.Results.Any())
+                {
+                    return queryResult.Results.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return null;
         }
 
         /// <inheritdoc/>
@@ -408,9 +419,20 @@ namespace OpenIddict.Ats
 
             var query = new TableQuery<TToken>().Where(condition).Take(1);
 
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
+            var continuationToken = default(TableContinuationToken);
 
-            return queryResult.Results.FirstOrDefault();
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
+
+                if (queryResult.Results.Any())
+                {
+                    return queryResult.Results.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return null;
         }
 
         /// <inheritdoc/>

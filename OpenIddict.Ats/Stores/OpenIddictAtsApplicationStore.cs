@@ -181,9 +181,21 @@ namespace OpenIddict.Ats
 
             var query = new TableQuery<TApplication>().Where(condition).Take(1);
 
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
+            var continuationToken = default(TableContinuationToken);
 
-            return queryResult.Results.FirstOrDefault();
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
+                continuationToken = queryResult.ContinuationToken;
+
+                if (queryResult.Results.Any())
+                {
+                    return queryResult.Results.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return null;
         }
 
         /// <inheritdoc/>
@@ -199,11 +211,23 @@ namespace OpenIddict.Ats
 
             var condition = TableQuery.GenerateFilterCondition(nameof(OpenIddictAtsApplication.ClientId), QueryComparisons.Equal, identifier);
 
-            var query = new TableQuery<TApplication>().Where(condition);
+            var query = new TableQuery<TApplication>().Where(condition).Take(1);
 
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
+            var continuationToken = default(TableContinuationToken);
 
-            return queryResult.Results.FirstOrDefault();
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
+                continuationToken = queryResult.ContinuationToken;
+
+                if (queryResult.Results.Any())
+                {
+                    return queryResult.Results.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return null;
         }
 
         /// <inheritdoc/>
@@ -298,13 +322,23 @@ namespace OpenIddict.Ats
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.ApplicationsCollectionName);
 
             var cloudQuery = new TableQuery<TApplication>();
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(cloudQuery, default, cancellationToken);
 
-            var result = query(queryResult.Results.AsQueryable(), state);
+            var continuationToken = default(TableContinuationToken);
 
-            //TODO KAR make async
-            //.AsTableQuery().FirstOrDefaultAsync so how can I get it working here?
-            return result.FirstOrDefault();//.FirstOrDefaultAsync(cancellationToken);
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(cloudQuery, continuationToken, cancellationToken);
+                continuationToken = queryResult.ContinuationToken;
+
+                var result = query(queryResult.Results.AsQueryable(), state);
+                if (result.Any())
+                {
+                    return result.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return default;
         }
 
         /// <inheritdoc/>

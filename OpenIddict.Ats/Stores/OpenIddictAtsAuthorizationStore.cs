@@ -430,14 +430,25 @@ namespace OpenIddict.Ats
             var tableClient = await Context.GetTableClientAsync(cancellationToken);
             CloudTable ct = tableClient.GetTableReference(Options.CurrentValue.AuthorizationsCollectionName);
 
-            //TODO KAR  .Take(1)
             var condition = TableQuery.GenerateFilterCondition(nameof(OpenIddictAtsAuthorization.PartitionKey), QueryComparisons.Equal, identifier);
 
-            var query = new TableQuery<TAuthorization>().Where(condition);
+            var query = new TableQuery<TAuthorization>().Where(condition).Take(1);
 
-            var queryResult = await ct.ExecuteQuerySegmentedAsync(query, default, cancellationToken);
+            var continuationToken = default(TableContinuationToken);
 
-            return queryResult.Results.FirstOrDefault();
+            do
+            {
+                var queryResult = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
+                continuationToken = queryResult.ContinuationToken;
+
+                if (queryResult.Results.Any())
+                {
+                    return queryResult.Results.FirstOrDefault();
+                }
+
+            } while (continuationToken != null);
+
+            return null;
         }
 
         /// <inheritdoc/>
@@ -662,6 +673,7 @@ namespace OpenIddict.Ats
             {
                 var results = await ct.ExecuteQuerySegmentedAsync(query, continuationToken, cancellationToken);
                 continuationToken = results.ContinuationToken;
+
                 foreach (var record in results)
                 {
                     if (offset.GetValueOrDefault(-1) < count)
@@ -673,6 +685,7 @@ namespace OpenIddict.Ats
                     }
                     counter++;
                 }
+
             } while (continuationToken != null);
         }
 
