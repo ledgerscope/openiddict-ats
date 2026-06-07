@@ -1,39 +1,71 @@
 name: OpenIddict ATS
 
-on: push
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build:
-    env:
-      ContinuousIntegrationBuild: true
-      EmbedUntrackedSources: true
-
+  build-and-test:
     runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
 
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-dotnet@v1
-
-    - name: Setup NuGet
-      run: dotnet nuget add source "https://pkgs.dev.azure.com/ledgerscope/_packaging/LSFeed/nuget/v3/index.json" --name LSFeed -u ledgerscope --password ${{ secrets.LEDGERSCOPEDEVOPS }} --store-password-in-clear-text
-
-    - name: Install dependencies
+    - uses: actions/checkout@v6
+    
+    - name: Restore dependencies
       run: dotnet restore
-
+    
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=4.0.${{github.run_number}}
+      run: dotnet build --no-restore
     
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-build --verbosity normal
 
+  package:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+    
+    steps:
+    - uses: actions/checkout@v6
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release -p:Version=4.0.${{github.run_number}}
+    
     - name: Package
       run: dotnet pack -p:PackageVersion=4.0.${{github.run_number}}
-
-    - name: Publish
-      run: dotnet nuget push -s LSFeed --api-key az "**/*.nupkg"
-
-    - uses: actions/upload-artifact@v2
-      if: success()
+    
+    - name: Upload package artifacts
+      uses: actions/upload-artifact@v7
       with:
-       name: Packages
-       path: ./**/*.nupkg
+        name: nuget-packages
+        path: "**/*.nupkg"
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    # Only publish on pushes to main branch (not on pull requests)
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+    - name: Download package artifacts
+      uses: actions/download-artifact@v8
+      with:
+        name: nuget-packages
+        path: ./packages
+        
+    - name: Publish to GitHub Packages
+      run: dotnet nuget push "./packages/**/*.nupkg" --source https://nuget.pkg.github.com/ledgerscope/index.json --api-key ${{secrets.GITHUB_TOKEN}}
